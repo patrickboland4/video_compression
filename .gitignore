@@ -1,3 +1,10 @@
 uncompressed/
 compressed/
 *.temp
+*.log*
+ffmpeg*
+temp/
+meetings.py
+*.bak
+__pycache*
+*DS_STORE

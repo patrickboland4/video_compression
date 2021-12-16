@@ -1,29 +1,38 @@
 import os
+import subprocess
 
-import ffmpeg
+from app.reader import Reader
+from meetings import MEETINGS as meetings
+from app.compressor import Compressor
 
 def main():
-    uncompressed_files = os.listdir("./uncompressed")
-    video_bitrate = 5000
-    audio_bitrate = 32000
-    for filename in uncompressed_files:
-        i = ffmpeg.input(f"./uncompressed/{filename}")
+    #########
+    # download all videos
+    #########
+    for url, pw, date, completed in meetings:
+        if completed:
+            continue
+        else:
+            r = subprocess.run([
+                "zoomdl", "-u", f"{url}", "-p", f"{pw}", "-f", f"./uncompressed/ytt{date}" 
+            ])
+            assert(type(r) is subprocess.CompletedProcess) # TODO right now everything is of this type, catch instances where the video is not found
 
-        ffmpeg.output(i, os.devnull,
-                      **{'c:v': 'libx264', 'b:v': video_bitrate, 'pass': 1, 'f': 'mp4'}
-                      ).overwrite_output().run()
-        ffmpeg.output(i, f"./compressed/{filename}_compressed",
-                    **{'c:v': 'libx264', 'b:v': video_bitrate, 'pass': 2, 'c:a': 'aac', 'b:a': audio_bitrate}
-                    ).overwrite_output().run()
+    #########
+    # compress videos
+    #########
+    c = Compressor("uncompressed", "compressed")
+    for f in os.listdir("./uncompressed"):
+        c.compress(f)
 
-        # input_params = {'input_name': f"./uncompressed/{filename}"}
-        # output_params = {
-        #     f"./compressed/{filename}_compressed": '-vcodec libx264 -crf 20'
-        # }
-        # ff = ffmpy.FFmpeg(inputs=input_params, outputs=output_params)
-        # print(ff.cmd)
-        # ff.run()
-    print("all done")
+    ########
+    # load to drive
+    ########
+
+    print("all done") 
+            
+
+
 
 
 if __name__ == "__main__":
