@@ -8,5 +8,5 @@ class Compressor:
 
     def compress(self, input_file):
         result = subprocess.run([
-            "ffmpeg", "-i", f"./{self.input_dir}/{input_file}", "-vcodec", "libx264", "-crf", "36", f"./{self.output_dir}/finished_{input_file}"
+            "ffmpeg", "-n", "-i", f"./{self.input_dir}/{input_file}", "-vcodec", "libx264", "-crf", "24", f"./{self.output_dir}/finished_{input_file}"
         ])
